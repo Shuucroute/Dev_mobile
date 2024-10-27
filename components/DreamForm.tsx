@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Dimensions, ScrollView } from 'react-native';
-import { TextInput, Button, Checkbox, Chip } from 'react-native-paper';
+import { TextInput, Button, Chip } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DropDown from 'react-native-paper-dropdown';
 
 const { width } = Dimensions.get('window');
 
 export default function DreamForm({ selectedDream, onFormSubmit }) {
     const [dreamText, setDreamText] = useState('');
     const [isLucidDream, setIsLucidDream] = useState(false);
-    const [hashtags, setHashtags] = useState([]);
+    const [showDropDown, setShowDropDown] = useState(false);
+    const [hashtags, setHashtags] = useState([]); 
     const [newHashtag, setNewHashtag] = useState('');
     const isEditing = !!selectedDream;
 
@@ -29,20 +31,18 @@ export default function DreamForm({ selectedDream, onFormSubmit }) {
                 dreamText,
                 isLucidDream,
                 hashtags,
-                todayDate: new Date().toISOString(), // Date et heure actuelles
+                todayDate: new Date().toISOString(),
             };
 
-            // Ajouter ou modifier le rêve dans le tableau
             if (isEditing) {
                 const index = selectedDream.index;
-                formDataArray[index] = newDream;
+                formDataArray[index] = newDream; 
             } else {
-                formDataArray.push(newDream);
+                formDataArray.push(newDream); 
             }
 
             await AsyncStorage.setItem('dreamFormDataArray', JSON.stringify(formDataArray));
-
-            resetForm();
+            resetForm(); 
             onFormSubmit();
         } catch (error) {
             console.error('Erreur lors de la sauvegarde des données:', error);
@@ -57,7 +57,7 @@ export default function DreamForm({ selectedDream, onFormSubmit }) {
     };
 
     const addHashtag = () => {
-        if (newHashtag.trim() !== '' && !hashtags.includes(newHashtag.trim())) {
+        if (newHashtag.trim() !== '' && !hashtags.includes(newHashtag.trim())) { 
             setHashtags([...hashtags, newHashtag.trim()]);
             setNewHashtag('');
         }
@@ -79,15 +79,21 @@ export default function DreamForm({ selectedDream, onFormSubmit }) {
                     numberOfLines={6}
                     style={[styles.input, { width: width * 0.8, alignSelf: 'center' }]}
                 />
-                <View style={styles.checkboxContainer}>
-                    <Checkbox.Item
-                        label="Rêve Lucide"
-                        status={isLucidDream ? 'checked' : 'unchecked'}
-                        onPress={() => setIsLucidDream(!isLucidDream)}
-                    />
-                </View>
+                <DropDown
+                    label="Type de rêve"
+                    mode="outlined"
+                    visible={showDropDown}
+                    showDropDown={() => setShowDropDown(true)}
+                    onDismiss={() => setShowDropDown(false)}
+                    value={isLucidDream}
+                    setValue={(value) => setIsLucidDream(value === "true")}
+                    list={[
+                        { label: 'Lucide', value: "true" },
+                        { label: 'Non Lucide', value: "false" },
+                    ]}
+                />
                 <Button mode="contained" onPress={handleDreamSubmission} style={styles.button}>
-                    {isEditing ? 'Modifier' : 'Soumettre'}
+                    {isEditing ? 'Modifier' : 'Soumettre'} 
                 </Button>
                 <TextInput
                     label="Ajouter un Hashtag"
@@ -95,7 +101,7 @@ export default function DreamForm({ selectedDream, onFormSubmit }) {
                     onChangeText={setNewHashtag}
                     mode="outlined"
                     style={[styles.input, { width: width * 0.8, alignSelf: 'center' }]}
-                    onSubmitEditing={addHashtag}
+                    onSubmitEditing={addHashtag} 
                 />
                 <View style={styles.hashtagsContainer}>
                     {hashtags.map((hashtag, index) => (
@@ -115,9 +121,6 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     input: {
-        marginBottom: 16,
-    },
-    checkboxContainer: {
         marginBottom: 16,
     },
     button: {
