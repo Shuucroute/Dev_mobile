@@ -8,7 +8,7 @@ import DreamForm from './DreamForm';
 
 export default function DreamList() {
     const [dreams, setDreams] = useState([]);
-    const [selectedDream, setSelectedDream] = useState(null); 
+    const [selectedDream, setSelectedDream] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -44,18 +44,30 @@ export default function DreamList() {
         }
     };
 
+    const handleDeleteAllDreams = async () => {
+        try {
+            await AsyncStorage.removeItem('dreamFormDataArray'); // Supprime toutes les données dans AsyncStorage
+            setDreams([]); // Vide la liste des rêves
+        } catch (error) {
+            console.error('Erreur lors de la suppression de tous les rêves:', error);
+        }
+    };
+
     const handleEditDream = (dream, index) => {
         setSelectedDream({ ...dream, index });
     };
 
     const handleFormSubmit = () => {
-        setSelectedDream(null); 
+        setSelectedDream(null);
         fetchData();
     };
 
     return (
         <ScrollView>
             <Text style={styles.title}>Liste des Rêves :</Text>
+            <Button onPress={handleDeleteAllDreams} mode="contained" color="red" style={styles.deleteAllButton}>
+                Supprimer tous les rêves
+            </Button>
             {dreams.length > 0 ? (
                 dreams.map((dream, index) => (
                     <View key={index} style={styles.dreamContainer}>
@@ -118,6 +130,10 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         marginBottom: 5,
+    },
+    deleteAllButton: {
+        marginBottom: 20,
+        alignSelf: 'center',
     },
     noDreamsText: {
         fontSize: 16,
